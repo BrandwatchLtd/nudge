@@ -1,0 +1,22 @@
+{
+  "name": "server-sent-event-emitter",
+  "version": "0.0.1",
+  "description": "Wrap a Node.js event emitter in an express middleware.",
+  "main": "index.js",
+  "scripts": {
+    "test": "jshint *.js &&  mocha test --reporter spec"
+  },
+  "keywords": [
+    "server sent events",
+    "EventSource",
+    "event emitter",
+    "express",
+    "middleware"
+  ],
+  "author": "Mark Stanley Everitt",
+  "license": "MIT",
+  "devDependencies": {
+    "jshint": "2.5.1",
+    "mocha": "1.20.1"
+  }
+}
