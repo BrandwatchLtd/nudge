@@ -78,10 +78,10 @@ describe('makeHandler', function () {
 		]);
 	});
 
-	it('should return a custom event handler then spec has a preProcessor function.', function () {
+	it('should return a custom event handler when spec has a preProcessor function.', function () {
 		var handler = makeHandler('handlerName', {
-			preProcessor: function (a, b, c) {
-				return '' + a + b + c;
+			preProcessor: function (args, callback) {
+				callback(args.join(''));
 			}
 		}, fakeRes);
 
@@ -93,11 +93,11 @@ describe('makeHandler', function () {
 		]);
 	});
 
-	it('should return a custom name event handler then spec has a preProcessor function and name.', function () {
+	it('should return a custom name event handler when spec has a preProcessor function and name.', function () {
 		var handler = makeHandler('handlerName', {
 			name: 'customName',
-			preProcessor: function (a, b, c) {
-				return '' + a + b + c;
+			preProcessor: function (args, callback) {
+				callback(args.join(''));
 			}
 		}, fakeRes);
 
@@ -106,6 +106,31 @@ describe('makeHandler', function () {
 		assert.deepEqual(written, [
 			'event: customName\n',
 			'data: "123"\n\n'
+		]);
+	});
+
+	it('should filter out events that for which the handler does not call the callback', function () {
+		var handler = makeHandler('handlerName', {
+			name: 'customName',
+			preProcessor: function (args, callback) {
+				if (args[0] === false) {
+					return;
+				}
+
+				callback(args[0]);
+			}
+		}, fakeRes);
+
+		handler(true);
+		handler(false);
+		handler(true);
+		handler(false);
+
+		assert.deepEqual(written, [
+			'event: customName\n',
+			'data: true\n\n',
+			'event: customName\n',
+			'data: true\n\n'
 		]);
 	});
 });

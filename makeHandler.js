@@ -17,9 +17,9 @@ module.exports = function (eventName, spec, res) {
 	}
 
 	return function () {
-		var processed = spec.preProcessor.apply(spec.preProcessor, arguments);
-
-		res.write('event: ' + (spec.name || eventName) + '\n');
-		res.write('data: ' + JSON.stringify(processed) + '\n\n');
+		spec.preProcessor(Array.prototype.slice.call(arguments), function (processed) {
+			res.write('event: ' + (spec.name || eventName) + '\n');
+			res.write('data: ' + JSON.stringify(processed) + '\n\n');
+		});
 	};
 };

@@ -57,7 +57,9 @@ You can rename and do some custom pre-processing on events before sending them t
 One important difference between EventSource and the Node.js EventEmitters is that EventSource
 listeners only have one data argument, whereas Node emitters may have many. Pre-processing gives you
 a chance to do something to the data from emitters like this in order to reduce them to a single
-argument. The return of the preProcessor is used as the data argument.
+argument. The callback of the preProcessor is used as the data argument. It's important to note that
+this is a *success* callback. Any errors should be handled by your function separately. By not
+calling the success callback, you can effectively filter results.
 
 Take for example:
 
@@ -66,8 +68,8 @@ var testEmitterRelay = ssee(twitterEmitter, {
     testEvent: true,
     data: {
         name: 'tweet'
-        preProcessor: function (user, tweet) {
-            return { user: user, tweet: tweet };
+        preProcessor: function (args, successCallback) {
+            successCallback({ user: args[0], tweet: args[1] });
         }
     }
 });
