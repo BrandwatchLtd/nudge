@@ -1,3 +1,6 @@
+/* global describe, it, beforeEach */
+/* jshint maxlen: 150 */
+
 var assert = require('assert');
 var EventEmitter = require('events').EventEmitter;
 var ssee = require('./index');
@@ -137,7 +140,7 @@ describe('makeHandler', function () {
 
 describe('middleware', function () {
 	var status;
-	var set;
+	var headers;
 	var written;
 	var testEmitter;
 

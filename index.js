@@ -1,4 +1,3 @@
-var EventEmitter = require('events').EventEmitter;
 var makeHandler = require('./makeHandler');
 var checkValidity = require('./checkValidity');
 
@@ -17,7 +16,7 @@ module.exports = function (emitter, eventSpecs) {
 
 	var eventNames = Object.keys(eventSpecs);
 
-	return function (req, res, next) {
+	return function (req, res) {
 		// Make event listeners.
 		for (var i = 0, len = eventNames.length; i < len; i++) {
 			var eventName = eventNames[i];
