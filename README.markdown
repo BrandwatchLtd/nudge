@@ -1,4 +1,4 @@
-# Server Sent Event Emitter
+# nudge
 
 This module provides a function that returns an express middleware. The function wraps a Node.js
 event emitter, optionally giving events custom names or processing them before being sent to a
@@ -12,7 +12,7 @@ The most basic usage is to pass the function an event emitter, and an object wit
 corresponding to events to listen on, and values set to `true`. For example:
 
 ```javascript
-var ssee = require('server-sent-event-emitter');
+var ssee = require('nudge');
 var express = require('express');
 var EventEmitter = require('events').EventEmitter;
 

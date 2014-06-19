@@ -3,7 +3,7 @@
 
 var assert = require('assert');
 var EventEmitter = require('events').EventEmitter;
-var ssee = require('./index');
+var nudge = require('./index');
 var checkValidity = require('./checkValidity');
 var makeHandler = require('./makeHandler');
 
@@ -169,7 +169,7 @@ describe('middleware', function () {
 	});
 
 	it('should listen only to registered events', function () {
-		var middleware = ssee(testEmitter, { test: true });
+		var middleware = nudge(testEmitter, { test: true });
 
 		middleware(fakeReq, fakeRes);
 
@@ -195,7 +195,7 @@ describe('middleware', function () {
 	});
 
 	it('should remove the event listeners when the request emits \'close\'.', function () {
-		var middleware = ssee(testEmitter, { test: true });
+		var middleware = nudge(testEmitter, { test: true });
 
 		var beforeCount = testEmitter.listeners('test').length;
 
