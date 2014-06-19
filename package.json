@@ -13,10 +13,47 @@
     "express",
     "middleware"
   ],
-  "author": "Mark Stanley Everitt",
+  "author": "Brandwatch",
+  "contributors": [
+    { "name": "Mark Stanley Everitt", "email": "mark.s.everitt@gmail.com" }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/BrandwatchLtd/nudge"
+  },
   "license": "MIT",
   "devDependencies": {
     "jshint": "2.5.1",
     "mocha": "1.20.1"
+  },
+  "jshintConfig": {
+    "bitwise": true,
+    "camelcase": true,
+    "curly": true,
+    "eqeqeq": true,
+    "forin": false,
+    "immed": true,
+    "indent": 4,
+    "latedef": true,
+    "newcap": true,
+    "noarg": true,
+    "noempty": true,
+    "nonew": true,
+    "plusplus": false,
+    "quotmark": "single",
+    "undef": true,
+    "unused": true,
+    "strict": true,
+    "trailing": true,
+    "maxparams": 5,
+    "maxdepth": 3,
+    "maxstatements": 15,
+    "maxcomplexity": 11,
+    "maxlen": 100,
+    "smarttabs": true,
+    "node": true,
+    "browser": true,
+    "esnext": true,
+    "strict": false
   }
 }
