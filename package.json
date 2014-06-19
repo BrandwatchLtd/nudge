@@ -1,5 +1,5 @@
 {
-  "name": "server-sent-event-emitter",
+  "name": "nudge",
   "version": "0.1.0",
   "description": "Wrap a Node.js event emitter in an express middleware.",
   "main": "index.js",
