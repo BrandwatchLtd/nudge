@@ -4,7 +4,7 @@
   "description": "Wrap a Node.js event emitter in an express middleware.",
   "main": "index.js",
   "scripts": {
-    "test": "jshint *.js &&  mocha test --reporter spec"
+    "test": "jshint *.js lib/*.js &&  mocha test --reporter spec"
   },
   "keywords": [
     "server sent events",
@@ -46,7 +46,7 @@
     "quotmark": "single",
     "undef": true,
     "unused": true,
-    "strict": false,
+    "strict": true,
     "trailing": true,
     "maxparams": 5,
     "maxdepth": 3,

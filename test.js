@@ -1,11 +1,14 @@
-/* global describe, it, beforeEach */
+/* global describe, it, beforeEach, afterEach */
 /* jshint maxlen: 150 */
+
+'use strict';
 
 var assert = require('assert');
 var EventEmitter = require('events').EventEmitter;
 var nudge = require('./index');
-var checkValidity = require('./checkValidity');
-var makeHandler = require('./makeHandler');
+var checkValidity = require('./lib/checkValidity');
+var makeHandler = require('./lib/makeHandler');
+var makeProxyEmitter = require('./lib/makeProxyEmitter');
 
 describe('checkValidity', function () {
 	it('should throw if eventSpecs is not an object.', function () {
@@ -48,71 +51,76 @@ describe('checkValidity', function () {
 });
 
 describe('makeHandler', function () {
-	var written;
-	var fakeRes = {
-		write: function (data) {
-			written.push(data);
-		}
-	};
-
 	beforeEach(function () {
-		written = [];
+		this.fakeProxy = new EventEmitter();
 	});
 
-	it('should return the basic event handler then spec is true.', function () {
-		var handler = makeHandler('handlerName', true, fakeRes);
+	afterEach(function () {
+		this.fakeProxy.removeAllListeners();
+	});
+
+	it('should trigger the basic event handler then spec is true.', function () {
+		var handler = makeHandler('handlerName', true, this.fakeProxy);
+		var basicString;
+
+		this.fakeProxy.on('data', function (string) {
+			basicString = string;
+		});
 
 		handler('test');
 
-		assert.deepEqual(written, [
-			'event: handlerName\n',
-			'data: "test"\n\n'
-		]);
+		assert.equal(basicString, 'event: handlerName\ndata: "test"\n\n');
 	});
 
-	it('should return a named event handler then spec is has a name field.', function () {
-		var handler = makeHandler('handlerName', { name: 'customName' }, fakeRes);
+	it('should trigger the named event handler then spec has a name field.', function () {
+		var handler = makeHandler('handlerName', { name: 'customName' }, this.fakeProxy);
+		var basicString;
+
+		this.fakeProxy.on('data', function (string) {
+			basicString = string;
+		});
 
 		handler('test');
 
-		assert.deepEqual(written, [
-			'event: customName\n',
-			'data: "test"\n\n'
-		]);
+		assert.equal(basicString, 'event: customName\ndata: "test"\n\n');
 	});
 
-	it('should return a custom event handler when spec has a preProcessor function.', function () {
+	it('should use a custom handler when spec has a preProcessor function.', function () {
 		var handler = makeHandler('handlerName', {
 			preProcessor: function (args, callback) {
 				callback(args.join(''));
 			}
-		}, fakeRes);
+		}, this.fakeProxy);
+		var basicString;
+
+		this.fakeProxy.on('data', function (string) {
+			basicString = string;
+		});
 
 		handler(1, 2, 3);
 
-		assert.deepEqual(written, [
-			'event: handlerName\n',
-			'data: "123"\n\n'
-		]);
+		assert.equal(basicString, 'event: handlerName\ndata: "123"\n\n');
 	});
 
-	it('should return a custom name event handler when spec has a preProcessor function and name.', function () {
+	it('should use a custom name and handler when spec has a preProcessor function and name.', function () {
 		var handler = makeHandler('handlerName', {
 			name: 'customName',
 			preProcessor: function (args, callback) {
 				callback(args.join(''));
 			}
-		}, fakeRes);
+		}, this.fakeProxy);
+		var basicString;
+
+		this.fakeProxy.on('data', function (string) {
+			basicString = string;
+		});
 
 		handler(1, 2, 3);
 
-		assert.deepEqual(written, [
-			'event: customName\n',
-			'data: "123"\n\n'
-		]);
+		assert.equal(basicString, 'event: customName\ndata: "123"\n\n');
 	});
 
-	it('should filter out events that for which the handler does not call the callback', function () {
+	it('should filter out events that for which the handler does not call the callback.', function () {
 		var handler = makeHandler('handlerName', {
 			name: 'customName',
 			preProcessor: function (args, callback) {
@@ -122,19 +130,47 @@ describe('makeHandler', function () {
 
 				callback(args[0]);
 			}
-		}, fakeRes);
+		}, this.fakeProxy);
+		var filtered = [];
+
+		this.fakeProxy.on('data', function (string) {
+			filtered.push(string);
+		});
 
 		handler(true);
 		handler(false);
 		handler(true);
 		handler(false);
 
-		assert.deepEqual(written, [
-			'event: customName\n',
-			'data: true\n\n',
-			'event: customName\n',
-			'data: true\n\n'
+		assert.deepEqual(filtered, [
+			'event: customName\ndata: true\n\n',
+			'event: customName\ndata: true\n\n'
 		]);
+	});
+});
+
+describe('makeProxyEmitter', function () {
+	it('should make event emitter with no max listeners.', function () {
+		var original = new EventEmitter();
+		var proxy = makeProxyEmitter(original, {});
+
+		assert.strictEqual(proxy._maxListeners, 0);
+	});
+
+	it('proxy emitters should only emit on given event names', function () {
+		var original = new EventEmitter();
+		var proxy = makeProxyEmitter(original, { a: true });
+
+		var events = 0;
+
+		proxy.on('data', function () {
+			events += 1;
+		});
+
+		original.emit('a');
+		original.emit('b');
+
+		assert.equal(events, 1);
 	});
 });
 
@@ -168,7 +204,7 @@ describe('middleware', function () {
 		testEmitter = new EventEmitter();
 	});
 
-	it('should listen only to registered events', function () {
+	it('should listen only to registered events.', function () {
 		var middleware = nudge(testEmitter, { test: true });
 
 		middleware(fakeReq, fakeRes);
@@ -187,27 +223,8 @@ describe('middleware', function () {
 
 		assert.deepEqual(written, [
 			'\n',
-			'event: test\n',
-			'data: "someData"\n\n',
-			'event: test\n',
-			'data: "someOtherData"\n\n'
+			'event: test\ndata: "someData"\n\n',
+			'event: test\ndata: "someOtherData"\n\n'
 		]);
-	});
-
-	it('should remove the event listeners when the request emits \'close\'.', function () {
-		var middleware = nudge(testEmitter, { test: true });
-
-		var beforeCount = testEmitter.listeners('test').length;
-
-		middleware(fakeReq, fakeRes);
-
-		var duringCount = testEmitter.listeners('test').length;
-
-		fakeReq.emit('close');
-
-		var afterCount = testEmitter.listeners('test').length;
-
-		assert.equal(beforeCount + 1, duringCount);
-		assert.equal(duringCount - 1, afterCount);
 	});
 });
