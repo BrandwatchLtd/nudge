@@ -1,32 +1,26 @@
-var makeHandler = require('./makeHandler');
-var checkValidity = require('./checkValidity');
+var checkValidity = require('./lib/checkValidity');
+var makeProxyEmitter = require('./lib/makeProxyEmitter');
 
-
-// Don't make functions in a loop!
-function removeListener(emitter, eventName, handler) {
-	return function () {
-		emitter.removeListener(eventName, handler);
-	};
-}
 
 // eventSpecs is an object. Each field must contain true, or a sub object with a
 // name, or a function, or both.
-module.exports = function (emitter, eventSpecs) {
+function nudge(emitter, eventSpecs) {
+	'use strict';
+
 	checkValidity(eventSpecs);
 
-	var eventNames = Object.keys(eventSpecs);
+	var proxy = makeProxyEmitter(emitter, eventSpecs);
 
 	return function (req, res) {
-		// Make event listeners.
-		for (var i = 0, len = eventNames.length; i < len; i++) {
-			var eventName = eventNames[i];
-			var handler = makeHandler(eventName, eventSpecs[eventName], res);
-
-			emitter.on(eventName, handler);
-
-			// Make sure we remove the event listener when the request ends.
-			req.once('close', removeListener(emitter, eventName, handler));
+		function write(string) {
+			res.write(string);
 		}
+
+		proxy.on('data', write);
+
+		req.once('close', function () {
+			proxy.removeListener('data', write);
+		});
 
 		// Necessary headers for SSE.
 		res.status(200).set({
@@ -38,4 +32,6 @@ module.exports = function (emitter, eventSpecs) {
 		// SSE required newline.
 		res.write('\n');
 	};
-};
+}
+
+module.exports = nudge;
