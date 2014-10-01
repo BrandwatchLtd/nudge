@@ -84,3 +84,7 @@ data arguments of emissions wrapped in a single object.
 
 It's important to note that the callback passed to the pre-processor doesn't take an error. It's up
 to your pre-processor function to know what to do when errors occur.
+
+## Contributing
+
+Contributions are welcome! Please see the [contributing](CONTRIBUTING.markdown) document.
