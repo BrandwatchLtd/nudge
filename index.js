@@ -11,14 +11,14 @@ function nudge(emitter, eventSpecs) {
 
 	var proxy = makeProxyEmitter(emitter, eventSpecs);
 
-	return function (req, res) {
+	return function middleware(req, res) {
 		function write(string) {
 			res.write(string);
 		}
 
 		proxy.on('data', write);
 
-		req.once('close', function () {
+		req.once('close', function removeListener() {
 			proxy.removeListener('data', write);
 		});
 
@@ -30,7 +30,7 @@ function nudge(emitter, eventSpecs) {
 		});
 
 		// SSE required newline.
-		res.write('\n');
+		write('\n');
 	};
 }
 
