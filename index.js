@@ -26,7 +26,8 @@ function nudge(emitter, eventSpecs) {
 		res.status(200).set({
 			'Content-Type': 'text/event-stream',
 			'Cache-Control': 'no-cache',
-			'Connection': 'keep-alive'
+			'Connection': 'keep-alive',
+			'X-Accel-Buffering': 'no' // Tell Nginx not to buffer this response.
 		});
 
 		// SSE required newline.
