@@ -23,7 +23,7 @@ function nudge(emitter, eventSpecs) {
 		});
 
 		// Necessary headers for SSE.
-		res.status(200).set({
+		res.writeHead(200, {
 			'Content-Type': 'text/event-stream',
 			'Cache-Control': 'no-cache',
 			'Connection': 'keep-alive',

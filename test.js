@@ -185,12 +185,9 @@ describe('middleware', function () {
 			written.push(data);
 			return fakeRes;
 		},
-		set: function (headerParams) {
-			headers.push(headerParams);
-			return fakeRes;
-		},
-		status: function (code) {
+		writeHead: function (code, headerParams) {
 			status.push(code);
+			headers.push(headerParams);
 			return fakeRes;
 		}
 	};
